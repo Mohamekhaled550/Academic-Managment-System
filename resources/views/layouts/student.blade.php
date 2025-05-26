@@ -16,9 +16,6 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('student.dashboard') }}">الرئيسية</a>
                     </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="{{ route('student.status') }}">حالة الطالب</a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('student.profile') }}">الملف الشخصي</a>
                     </li>

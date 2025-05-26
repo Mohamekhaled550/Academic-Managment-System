@@ -1,48 +1,41 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\StudentController;
-use App\Http\Controllers\CourseController;
-use App\Http\Controllers\RegistrationController;
-use App\Http\Controllers\TermController;
+use App\Http\Controllers\Student\DashboardController;
+use App\Http\Controllers\Student\ProfileController;
+use App\Http\Controllers\Student\RegistrationController;
+use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\TermController;
 use App\Http\Controllers\Auth\StudentLoginController;
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// صفحة تسجيل الدخول
+// صفحات تسجيل دخول الطلاب
 Route::get('student/login', [StudentLoginController::class, 'showLoginForm'])->name('student.login');
-
-// تنفيذ تسجيل الدخول
 Route::post('student/login', [StudentLoginController::class, 'login'])->name('student.login.submit');
-
-// تسجيل الخروج
 Route::post('student/logout', [StudentLoginController::class, 'logout'])->name('student.logout');
 
-Route::middleware(['auth:student'])->group(function () {
-    Route::get('/student/dashboard', [StudentController::class, 'dashboard'])->name('student.dashboard');
-    Route::get('/student/profile', [StudentController::class, 'profile'])->name('student.profile');
-    Route::get('/student/status', [StudentController::class, 'status'])->name('student.status');
+// 🔒 Routes خاصة بالطالب بعد تسجيل الدخول
+Route::middleware(['auth:student'])->prefix('student')->name('student.')->group(function () {
 
-    Route::get('/register', [RegistrationController::class, 'availableCourses'])->name('student.register.show');
-    Route::post('/register', [RegistrationController::class, 'register'])->name('student.register.store');
+    // لوحة التحكم
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // الملف الشخصي
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+
+    // عرض المواد المتاحة والتسجيل
+    Route::get('/register', [RegistrationController::class, 'availableCourses'])->name('register.show');
+    Route::post('/register', [RegistrationController::class, 'register'])->name('register.store');
 });
 
-
-
-// Routes للإدارة
+// 🔐 Routes خاصة بالإدارة (admin)
 Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(function () {
+
+    // إدارة المقررات
     Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
+
+    // إدارة الترمات
     Route::get('/terms', [TermController::class, 'index'])->name('terms.index');
 });
