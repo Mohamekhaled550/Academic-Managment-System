@@ -40,6 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+         'admin' => [
+        'driver' => 'session',
+        'provider' => 'admins',
+    ],
+
         // ✅ ده اللي تضيفه:
    'student' => [
     'driver' => 'session',
@@ -71,6 +77,12 @@ return [
             'model' => App\Models\User::class,
 
         ],
+
+   'admins' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\Admin::class,
+    ],
+
         'students' => [
     'driver' => 'eloquent',
     'model' => App\Models\Student::class,

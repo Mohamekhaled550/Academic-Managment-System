@@ -6,6 +6,11 @@ use App\Http\Controllers\Student\RegistrationController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\TermController;
 use App\Http\Controllers\Auth\StudentLoginController;
+use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\PermissionController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,12 +35,26 @@ Route::middleware(['auth:student'])->prefix('student')->name('student.')->group(
     Route::post('/register', [RegistrationController::class, 'register'])->name('register.store');
 });
 
-// 🔐 Routes خاصة بالإدارة (admin)
-Route::middleware(['auth:admin'])->prefix('admin')->name('admin.')->group(function () {
+// تسجيل دخول الأدمن
+// ----------------------
+Route::prefix('admin')->name('admin.')->middleware('guest:admin')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+});
 
-    // إدارة المقررات
-    Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
+// ----------------------
+// Login Routes
+Route::middleware('guest:admin')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+});
 
-    // إدارة الترمات
-    Route::get('/terms', [TermController::class, 'index'])->name('terms.index');
+// Protected Routes
+Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', fn() => view('admin.dashboard'))->name('dashboard');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::resource('/admins', AdminController::class);
+    Route::resource('/roles', RoleController::class);
+    Route::resource('/permissions', PermissionController::class);
 });
