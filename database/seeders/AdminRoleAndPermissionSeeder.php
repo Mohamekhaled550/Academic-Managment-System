@@ -35,7 +35,15 @@ class AdminRoleAndPermissionSeeder extends Seeder
 
         // ربط أدمن معين بالدور
         $admin = \App\Models\Admin::first();
+
         if ($admin) {
+            $admin = Admin::firstOrCreate(
+    ['email' => 'admin@example.com'],
+    [
+        'name' => 'Super Admin',
+        'password' => bcrypt('hamo2002')
+    ]
+);
             $admin->assignRole('super-admin');
         }
     }
