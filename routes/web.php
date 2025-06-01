@@ -4,12 +4,16 @@ use App\Http\Controllers\Student\DashboardController;
 use App\Http\Controllers\Student\ProfileController;
 use App\Http\Controllers\Student\RegistrationController;
 use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\TermController;
-use App\Http\Controllers\Auth\StudentLoginController;
+use App\Http\Controllers\Admin\CourseGroupController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Auth\StudentLoginController;
+
 
 
 Route::get('/', function () {
@@ -57,4 +61,10 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::resource('/admins', AdminController::class);
     Route::resource('/roles', RoleController::class);
     Route::resource('/permissions', PermissionController::class);
+    Route::resource('/courses', CourseController::class);
+    Route::resource('/departments', DepartmentController::class);
+    Route::resource('/course-groups', CourseGroupController::class);
+    Route::resource('/terms', TermController::class);
+    Route::resource('/students', StudentController::class);
+
 });
