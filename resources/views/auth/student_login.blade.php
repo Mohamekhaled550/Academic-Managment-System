@@ -1,4 +1,4 @@
-
+@extends('layouts.student')
 <!DOCTYPE html>
 <html>
 <head>

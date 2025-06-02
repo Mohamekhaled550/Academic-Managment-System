@@ -12,12 +12,15 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\CourseRegistrationController;
+use App\Http\Controllers\Admin\CourseOfferingController;
+use App\Http\Controllers\Admin\PrerequisiteController;
 use App\Http\Controllers\Auth\StudentLoginController;
 
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('admin.login');
 });
 
 // صفحات تسجيل دخول الطلاب
@@ -39,12 +42,7 @@ Route::middleware(['auth:student'])->prefix('student')->name('student.')->group(
     Route::post('/register', [RegistrationController::class, 'register'])->name('register.store');
 });
 
-// تسجيل دخول الأدمن
-// ----------------------
-Route::prefix('admin')->name('admin.')->middleware('guest:admin')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-});
+
 
 // ----------------------
 // Login Routes
@@ -66,5 +64,9 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::resource('/course-groups', CourseGroupController::class);
     Route::resource('/terms', TermController::class);
     Route::resource('/students', StudentController::class);
+    Route::resource('/registrations',  CourseRegistrationController::class);
+    Route::resource('/course-groups', CourseGroupController::class);
+    Route::resource('/offerings', CourseOfferingController::class);
+    Route::resource('/prerequisites', PrerequisiteController::class);
 
 });

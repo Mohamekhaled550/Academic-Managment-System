@@ -8,6 +8,13 @@ use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
 {
+
+    public function __construct()
+{
+    $this->middleware('ensure.super.admin');
+}
+
+
     public function index()
     {
         $permissions = Permission::paginate(10);

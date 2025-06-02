@@ -28,5 +28,7 @@
                 @endforeach
             </tbody>
         </table>
+            {{ $permissions->links() }}
+
     </div>
 @endsection

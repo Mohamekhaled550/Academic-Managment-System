@@ -20,6 +20,20 @@ class Student extends Authenticatable
         return $this->hasMany(Registration::class);
     }
 
+
+    public function registeredCourses()
+{
+    return $this->hasManyThrough(
+        \App\Models\Course::class,
+        \App\Models\Registration::class,
+        'student_id', // Foreign key on Registration table
+        'id',         // Foreign key on Course table
+        'id',         // Local key on Student table
+        'course_id'   // Local key on Registration table
+    );
+}
+
+
    //علاقة بالقسم
     public function department()
 {

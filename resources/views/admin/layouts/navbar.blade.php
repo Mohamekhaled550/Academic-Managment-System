@@ -1,27 +1,12 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ route('admin.dashboard') }}">Control Unit</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarAdmin">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<nav class="top-navbar d-flex justify-content-between align-items-center">
+    <div>
+        <h5 class="mb-0">مرحبًا {{ Auth::guard('admin')->user()->name ?? 'مسؤول' }}</h5>
+    </div>
 
-        <div class="collapse navbar-collapse" id="navbarAdmin">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.admins.index') }}">Admins</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.roles.index') }}">Roles</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.permissions.index') }}">Permissions</a>
-                </li>
-            </ul>
-
-            <form method="POST" action="{{ route('admin.logout') }}">
-                @csrf
-                <button class="btn btn-outline-light">Logout</button>
-            </form>
-        </div>
+    <div>
+        <form method="POST" action="{{ route('admin.logout') }}">
+            @csrf
+            <button class="btn btn-outline-dark btn-sm"><i class="fas fa-sign-out-alt me-1"></i> تسجيل الخروج</button>
+        </form>
     </div>
 </nav>

@@ -48,14 +48,14 @@ class StudentController extends Controller
     public function update(Request $request, Student $student)
     {
         $request->validate([
-             'name' => 'required|string',
-            'national_id' => 'required|string|unique:students,national_id' . $student->id,
-            'department_id' => 'required|exists:departments,id',
-            'level' => 'required|integer|min:1|max:4',
-            'email' => 'required|email|unique:students,email'  . $student->id,
-            'gpa' => 'required|numeric',
-            'total_credits' => 'required|integer',
-            'status' => 'required|in:active,graduated,suspended',
+           'name' => 'required|string',
+           'department_id' => 'required|exists:departments,id',
+           'email' => 'required|email|unique:students,email,' . $student->id,
+           'national_id' => 'required|string|unique:students,national_id,' . $student->id,
+           'level' => 'required|integer|min:1|max:4',
+           'gpa' => 'required|numeric',
+           'total_credits' => 'required|integer',
+           'status' => 'required|in:active,graduated,suspended',
         ]);
 
         $student->update($request->all());
@@ -68,4 +68,15 @@ class StudentController extends Controller
         $student->delete();
         return redirect()->route('admin.students.index')->with('success', 'تم حذف الطالب بنجاح.');
     }
+
+    public function show($id)
+{
+    $student = Student::with([
+        'department',
+        'registrations.course',
+        'registrations.term',
+    ])->findOrFail($id);
+
+    return view('admin.students.show', compact('student'));
+}
 }

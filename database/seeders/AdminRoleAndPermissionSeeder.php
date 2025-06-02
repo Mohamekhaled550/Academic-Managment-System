@@ -37,50 +37,61 @@ class AdminRoleAndPermissionSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'admin']);
         }
 
-        // إنشاء الأدوار
-        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'admin']);
-        $advisorRole = Role::firstOrCreate(['name' => 'advisor', 'guard_name' => 'admin']);
 
-        // ربط الصلاحيات بالأدوار
-        $adminRole->syncPermissions(Permission::all());
+// إنشاء الأدوار بربطها بالـ guard الصحيح
+$adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'admin']);
+$advisorRole = Role::firstOrCreate(['name' => 'advisor', 'guard_name' => 'admin']);
+$superAdminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'admin']);
 
-        $advisorPermissions = [
-            'view dashboard',
-            'manage students',
-            'manage courses',
-        ];
+// ربط الصلاحيات بالأدوار
+$adminRole->syncPermissions(Permission::all());
 
-        $advisorRole->syncPermissions($advisorPermissions);
+$advisorPermissions = [
+    'view dashboard',
+    'manage students',
+    'manage courses',
+];
 
-        // إنشاء مسؤول (admin)
-        $admin = Admin::updateOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'name' => 'Admin',
-                'password' => Hash::make('admin123'),
-            ]
-        );
-        $admin->assignRole($adminRole);
+$advisorRole->syncPermissions($advisorPermissions);
 
-        // إنشاء مرشد أكاديمي (advisor)
-        $advisor = Admin::updateOrCreate(
-            ['email' => 'advisor@example.com'],
-            [
-                'name' => 'Advisor',
-                'password' => Hash::make('advisor123'),
-            ]
-        );
-        $advisor->assignRole($advisorRole);
+// إنشاء مسؤول (admin)
+$admin = Admin::updateOrCreate(
+    ['email' => 'admin@example.com'],
+    [
+        'name' => 'Admin',
+        'password' => Hash::make('admin123'),
+    ]
+);
+$admin->assignRole($adminRole);
 
-        // ✅ تم إنشاء المستخدمين:
-        echo "-----------------------------\n";
-        echo "🧑‍💼 Admin:\n";
-        echo "Email: admin@example.com\n";
-        echo "Password: admin123\n\n";
+// إنشاء مرشد أكاديمي (advisor)
+$advisor = Admin::updateOrCreate(
+    ['email' => 'advisor@example.com'],
+    [
+        'name' => 'Advisor',
+        'password' => Hash::make('advisor123'),
+    ]
+);
+$advisor->assignRole($advisorRole);
 
-        echo "👨‍🏫 Advisor:\n";
-        echo "Email: advisor@example.com\n";
-        echo "Password: advisor123\n";
-        echo "-----------------------------\n";
+// تعيين Super Admin لمستخدم موجود
+$superAdmin = Admin::find(4); // تأكد إن الـ ID صحيح
+if ($superAdmin) {
+    $superAdmin->assignRole($superAdminRole);
+
+}
     }
 }
+
+// ✅ تم إنشاء المستخدمين:
+echo "-----------------------------\n";
+echo "🧑‍💼 Admin:\n";
+echo "Email: admin@example.com\n";
+echo "Password: admin123\n\n";
+
+echo "👨‍🏫 Advisor:\n";
+echo "Email: advisor@example.com\n";
+echo "Password: advisor123\n\n";
+
+echo "👑 Super Admin Assigned to Admin ID 4\n";
+echo "-----------------------------\n";

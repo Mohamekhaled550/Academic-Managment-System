@@ -31,6 +31,7 @@
                     <td>{{ $student->status }}</td>
                     <td>{{ $student->department->name }}</td>
                     <td>
+                        <a href="{{ route('admin.students.show', $student->id) }}" class="btn btn-sm btn-info">عرض</a>
                         <a href="{{ route('admin.students.edit', $student) }}" class="btn btn-sm btn-warning">تعديل</a>
                         <form action="{{ route('admin.students.destroy', $student) }}" method="POST" style="display:inline-block;">
                             @csrf
