@@ -35,6 +35,14 @@
             </li>
             @endcan
 
+             @can('manage registrations')
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.registrations.*') ? 'active' : '' }}" href="{{ route('admin.registrations.index') }}">
+                    <i class="fas fa-calendar-alt"></i> التسجيلات
+                </a>
+            </li>
+            @endcan
+
              @can('manage offerings')
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.offerings.*') ? 'active' : '' }}" href="{{ route('admin.offerings.index') }}">

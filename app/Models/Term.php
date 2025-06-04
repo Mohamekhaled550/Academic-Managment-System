@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Term extends Model
 {
-    protected $fillable = ['name', 'year', 'semester', 'starts_at', 'ends_at'];
+    protected $fillable = ['name', 'year', 'semester', 'level', 'starts_at', 'ends_at'];
 
     public function registrations()
     {

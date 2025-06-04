@@ -4,7 +4,7 @@
 @section('content')
 <h2>{{ isset($offering) ? 'تعديل' : 'إضافة' }} إتاحة مقرر</h2>
 
-<form action="{{ isset($offering) ? route('admin.course_offerings.update', $offering->id) : route('admin.course_offerings.store') }}" method="POST">
+<form action="{{ isset($offering) ? route('admin.offerings.update', $offering->id) : route('admin.offerings.store') }}" method="POST">
     @csrf
     @if(isset($offering)) @method('PUT') @endif
 

@@ -23,8 +23,8 @@ class TermController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
-            'year' => 'required|string',
-            'semester' => 'required|in:first,second,summer',
+            'year' => 'required|integer',
+            'semester' => 'required|integer|min:1|max:3',
             'level' => 'required|integer|min:1|max:4',
             'registration_start_date' => 'nullable|date',
             'registration_end_date' => 'nullable|date|after_or_equal:registration_start_date',
@@ -32,6 +32,7 @@ class TermController extends Controller
         ]);
 
         Term::create($request->all());
+        
 
         return redirect()->route('admin.terms.index')->with('success', 'تم إنشاء الترم بنجاح');
     }
@@ -45,16 +46,18 @@ class TermController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
-            'year' => 'required|string',
-            'semester' => 'required|in:first,second,summer',
+            'year' => 'required|integer',
+            'semester' => 'required|integer|min:1|max:3',
             'level' => 'required|integer|min:1|max:4',
             'registration_start_date' => 'nullable|date',
             'registration_end_date' => 'nullable|date|after_or_equal:registration_start_date',
             'is_active' => 'boolean'
         ]);
 
-        $term->update($request->all());
+$data = $request->all();
+$data['is_active'] = $request->has('is_active'); // يتحول لـ true/false
 
+$term->update($data);
         return redirect()->route('admin.terms.index')->with('success', 'تم تعديل بيانات الترم');
     }
 

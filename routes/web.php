@@ -33,9 +33,12 @@ Route::middleware(['auth:student'])->prefix('student')->name('student.')->group(
 
     // لوحة التحكم
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/show', [DashboardController::class, 'show'])->name('show');
+
 
     // الملف الشخصي
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::get('/my-registrations', [ProfileController::class, 'showMyRegistrations'])->name('myRegistrations');
 
     // عرض المواد المتاحة والتسجيل
     Route::get('/register', [RegistrationController::class, 'availableCourses'])->name('register.show');

@@ -12,5 +12,7 @@ class DashboardController extends Controller
         $student = Auth::guard('student')->user();
         return view('student.dashboard', compact('student'));
     }
+
+  
 }
 

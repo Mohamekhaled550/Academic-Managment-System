@@ -8,37 +8,39 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Course;
 use App\Models\Registration;
 use App\Services\StudentService;
+use App\Services\Student\GPAService;
+use App\Services\Student\TermService;
+use App\Services\Student\CreditHourService;
+use App\Services\Student\CourseAvailabilityService;
 
 class RegistrationController extends Controller
 {
     protected StudentService $studentService;
 
-    public function __construct(StudentService $studentService)
-    {
-        $this->studentService = $studentService;
-    }
+    public function __construct(
+        protected GPAService $gpaService,
+        protected TermService $termService,
+        protected CreditHourService $creditHourService,
+        protected CourseAvailabilityService $courseAvailabilityService,
+    ) {}
 
     public function availableCourses()
     {
         $student = Auth::guard('student')->user();
+        $this->gpaService->calculateAndUpdate($student);
 
-        $this->studentService->calculateAndUpdateGPA($student);
+        $term = $this->termService->determineNext($student);
+        if (!$term) return back()->with('error', 'لا يوجد ترم مناسب حالياً لهذا الطالب.');
 
-        $term = $this->studentService->determineNextTerm($student);
-
-        if (!$term) {
-            return back()->with('error', 'لا يوجد ترم مناسب حالياً لهذا الطالب.');
-        }
-
-        $maxHours = $this->studentService->getAllowedCreditHours($student);
+        $maxHours = $this->creditHourService->getMaxAllowed($student);
         $minHours = 12;
 
-        $availableCourses = $this->studentService->getAvailableCourses($student, $term);
+        $availableCourses = $this->courseAvailabilityService->getAvailable($student, $term);
 
         return view('student.register', compact('availableCourses', 'term', 'maxHours', 'minHours'));
     }
 
-    public function register(Request $request)
+     public function register(Request $request)
     {
         $student = Auth::guard('student')->user();
 
@@ -48,17 +50,14 @@ class RegistrationController extends Controller
             'courses.*' => 'exists:courses,id',
         ]);
 
-        $this->studentService->calculateAndUpdateGPA($student);
+        $this->gpaService->calculateAndUpdate($student);
 
-        $isNewStudent = $this->studentService->isNewStudent($student);
-        $maxHours = $this->studentService->getAllowedCreditHours($student);
-        $totalHours = Course::whereIn('id', $request->courses)->sum('credit_hours');
+        $maxHours = $this->creditHourService->getMaxAllowed($student);
+        $minHours = 12;
+        $total = Course::whereIn('id', $request->courses)->sum('credit_hours');
 
-        if ($totalHours < 12 || $totalHours > $maxHours) {
-            $msg = $isNewStudent
-                ? 'الطلاب المستجدين يمكنهم التسجيل فقط من 12 إلى 18 ساعة.'
-                : "مسموح بالتسجيل من 12 إلى {$maxHours} ساعة فقط.";
-            return back()->with('error', $msg);
+        if ($total < $minHours || $total > $maxHours) {
+            return back()->with('error', "مسموح بالتسجيل من {$minHours} إلى {$maxHours} ساعة.");
         }
 
         foreach ($request->courses as $courseId) {
