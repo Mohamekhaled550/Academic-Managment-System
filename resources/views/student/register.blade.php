@@ -9,7 +9,6 @@
         </div>
 
         <div class="card-body">
-            {{-- تنبيه خاص للطالب المستجد --}}
             @if($maxHours == 18 && $minHours == 12)
                 <div class="alert alert-success">
                     🟢 طالب مستجد – تم السماح بتسجيل حتى <strong>18</strong> ساعة.
@@ -22,36 +21,72 @@
                 @csrf
                 <input type="hidden" name="term_id" value="{{ $term->id }}">
 
-                <table class="table table-bordered table-striped table-hover text-center align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>تسجيل</th>
-                            <th>اسم المادة</th>
-                            <th>رمز المادة</th>
-                            <th>عدد الساعات</th>
-                            <th>المستوى</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($availableCourses as $course)
-                            <tr>
-                                <td>
-                                    <input type="checkbox" class="form-check-input course-checkbox"
-                                        name="courses[]" value="{{ $course->id }}"
-                                        data-hours="{{ $course->credit_hours }}">
-                                </td>
-                                <td>{{ $course->name }}</td>
-                                <td>{{ $course->code ?? '-' }}</td>
-                                <td>{{ $course->credit_hours }}</td>
-                                <td>{{ $course->level }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5">لا توجد مواد متاحة للتسجيل حالياً.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+               {{-- المواد الإجبارية --}}
+<h5 class="mt-4 text-danger">المواد الإجبارية</h5>
+<table class="table table-bordered table-striped text-center align-middle">
+    <thead class="table-secondary">
+        <tr>
+            <th>تسجيل</th>
+            <th>اسم المادة</th>
+            <th>رمز المادة</th>
+            <th>عدد الساعات</th>
+            <th>المستوى</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($availableCourses->where('is_elective', false) as $course)
+            <tr>
+                <td>
+                    <input type="checkbox" class="form-check-input course-checkbox"
+                        name="courses[]" value="{{ $course->id }}"
+                        data-hours="{{ $course->credit_hours }}">
+                </td>
+                <td>{{ $course->name }}</td>
+                <td>{{ $course->code ?? '-' }}</td>
+                <td>{{ $course->credit_hours }}</td>
+                <td>{{ $course->level }}</td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="5">لا توجد مواد إجبارية متاحة للتسجيل.</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+
+{{-- المواد الاختيارية --}}
+<h5 class="mt-4 text-primary">المواد الاختيارية</h5>
+<table class="table table-bordered table-striped text-center align-middle">
+    <thead class="table-secondary">
+        <tr>
+            <th>تسجيل</th>
+            <th>اسم المادة</th>
+            <th>رمز المادة</th>
+            <th>عدد الساعات</th>
+            <th>المستوى</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($availableCourses->where('is_elective', true) as $course)
+            <tr>
+                <td>
+                    <input type="checkbox" class="form-check-input course-checkbox"
+                        name="courses[]" value="{{ $course->id }}"
+                        data-hours="{{ $course->credit_hours }}">
+                </td>
+                <td>{{ $course->name }}</td>
+                <td>{{ $course->code ?? '-' }}</td>
+                <td>{{ $course->credit_hours }}</td>
+                <td>{{ $course->level }}</td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="5">لا توجد مواد اختيارية متاحة للتسجيل.</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+
 
                 <div class="alert alert-info mt-3">
                     إجمالي الساعات المختارة: <span id="selectedHours">0</span> ساعة
@@ -95,7 +130,6 @@
 
         checkboxes.forEach(cb => cb.addEventListener('change', updateSelectedHours));
 
-        // منع إرسال الفورم إذا الساعات المختارة أقل من المسموح
         form.addEventListener('submit', function (e) {
             let total = 0;
             checkboxes.forEach(checkbox => {

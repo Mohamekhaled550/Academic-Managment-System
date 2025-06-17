@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\Department;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\StudentImport;
 
 class StudentController extends Controller
 {
@@ -79,4 +81,17 @@ class StudentController extends Controller
 
     return view('admin.students.show', compact('student'));
 }
+
+
+public function import(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:csv,xlsx',
+    ]);
+
+    Excel::import(new StudentImport, $request->file('file'));
+
+    return back()->with('success', 'تم استيراد البيانات بنجاح');
+}
+
 }

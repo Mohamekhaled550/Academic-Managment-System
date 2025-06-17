@@ -8,6 +8,8 @@ use App\Models\Student;
 use App\Models\Course;
 use App\Models\Term;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\RegistrationImport;
 
 class CourseRegistrationController extends Controller
 {
@@ -66,4 +68,17 @@ class CourseRegistrationController extends Controller
         $registration->delete();
         return redirect()->route('admin.registrations.index')->with('success', 'تم الحذف.');
     }
+
+
+
+    public function import(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:csv,xlsx',
+    ]);
+
+    Excel::import(new RegistrationImport, $request->file('file'));
+
+    return back()->with('success', 'تم استيراد البيانات بنجاح');
+}
 }

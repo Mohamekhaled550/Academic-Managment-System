@@ -6,7 +6,13 @@
     <h2>إتاحة المقررات</h2>
     <a href="{{ route('admin.offerings.create') }}" class="btn btn-primary">إضافة إتاحة</a>
 </div>
-
+<form action="{{ route('admin.offerings.import') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    <div class="input-group mb-3">
+        <input type="file" name="file" class="form-control" accept=".csv, .xlsx" required>
+        <button class="btn btn-primary">استيراد</button>
+    </div>
+</form>
 @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>
 @endif

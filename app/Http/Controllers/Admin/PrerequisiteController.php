@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Prerequisite;
 use Illuminate\Http\Request;
-
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\PrerequisiteImport;
 class PrerequisiteController extends Controller
 {
     public function index()
@@ -56,4 +57,17 @@ class PrerequisiteController extends Controller
         $prerequisite->delete();
         return redirect()->route('admin.prerequisites.index')->with('success', 'تم الحذف بنجاح');
     }
+
+
+    public function import(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:csv,xlsx',
+    ]);
+
+    Excel::import(new PrerequisiteImport, $request->file('file'));
+
+    return back()->with('success', 'تم استيراد البيانات بنجاح');
+}
+
 }

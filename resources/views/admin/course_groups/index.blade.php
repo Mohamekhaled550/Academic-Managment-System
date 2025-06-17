@@ -3,7 +3,13 @@
 @section('content')
     <h3>مجموعات المقررات</h3>
     <a href="{{ route('admin.course-groups.create') }}" class="btn btn-primary mb-3">إضافة مجموعة جديدة</a>
-
+<form action="{{ route('admin.course-groups.import') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    <div class="input-group mb-3">
+        <input type="file" name="file" class="form-control" accept=".csv, .xlsx" required>
+        <button class="btn btn-primary">استيراد</button>
+    </div>
+</form>
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif

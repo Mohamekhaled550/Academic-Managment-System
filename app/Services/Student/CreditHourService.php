@@ -3,22 +3,25 @@
 namespace App\Services\Student;
 
 use App\Models\Student;
-use Illuminate\Support\Facades\DB;
 
 class CreditHourService
 {
-    public function getMaxAllowed(Student $student): int
+    public function getMinMaxHours(Student $student): array
     {
-        $isNew = $this->isNewStudent($student);
+ $gpa = $student->gpa;
+ $hasPreviousRegistrations = $student->registrations()->exists();
 
-        return $isNew ? 18 : ($student->gpa >= 2 ? 18 : 12);
+    // الطالب مستجد (لم يسجل أي مقررات قبل كده)
+    if (!$hasPreviousRegistrations) {
+        return [12, 18];
     }
 
-    public function isNewStudent(Student $student): bool
-    {
-        return $student->level == 1 &&
-            $student->total_credits == 0 &&
-            $student->gpa == 0 &&
-            DB::table('registrations')->where('student_id', $student->id)->count() == 0;
+    if ($gpa >= 3.7) {
+        return [12, 21];
+    } elseif ($gpa >= 2.0) {
+        return [12, 18];
+    } else {
+        return [9, 12];
+    }
     }
 }

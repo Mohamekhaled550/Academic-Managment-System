@@ -11,11 +11,15 @@ class Term extends Model
     {
         return $this->hasMany(Registration::class);
     }
+ public function courseOfferings()
+ {
+     return $this->hasMany(CourseOffering::class);
+ }
 
-    public function offerings()
-    {
-        return $this->hasMany(CourseOffering::class);
-    }
+public function courses()
+{
+    return $this->belongsToMany(Course::class, 'course_offerings');
+}
 
 
 

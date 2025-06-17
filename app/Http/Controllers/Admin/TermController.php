@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Term;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\TermImport;
 
 class TermController extends Controller
 {
@@ -31,8 +33,11 @@ class TermController extends Controller
             'is_active' => 'boolean'
         ]);
 
-        Term::create($request->all());
-        
+$data = $request->all();
+$data['is_active'] = $request->has('is_active'); // يتحول لـ true/false
+
+$term->update($data);
+
 
         return redirect()->route('admin.terms.index')->with('success', 'تم إنشاء الترم بنجاح');
     }
@@ -66,4 +71,18 @@ $term->update($data);
         $term->delete();
         return redirect()->route('admin.terms.index')->with('success', 'تم حذف الترم');
     }
+
+
+    public function import(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:csv,xlsx',
+    ]);
+
+    Excel::import(new TermImport, $request->file('file'));
+
+    return back()->with('success', 'تم استيراد البيانات بنجاح');
+}
+
+
 }

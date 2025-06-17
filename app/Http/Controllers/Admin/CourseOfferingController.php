@@ -7,6 +7,8 @@ use App\Models\Course;
 use App\Models\CourseOffering;
 use App\Models\Term;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\CourseOfferingImport;
 
 class CourseOfferingController extends Controller
 {
@@ -65,4 +67,16 @@ class CourseOfferingController extends Controller
         $courseOffering->delete();
         return redirect()->route('admin.offerings.index')->with('success', 'تم الحذف بنجاح');
     }
+
+
+    public function import(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:csv,xlsx',
+    ]);
+
+    Excel::import(new CourseOfferingImport, $request->file('file'));
+
+    return back()->with('success', 'تم استيراد البيانات بنجاح');
+}
 }

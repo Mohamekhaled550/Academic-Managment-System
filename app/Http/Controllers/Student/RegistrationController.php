@@ -1,73 +1,82 @@
 <?php
 
+
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\Student;
+use App\Models\Term;
+use App\Services\Student\StudentProgressService;
+use App\Services\Student\TermService;
+use App\Services\Student\RegistrationService;
+use App\Services\Student\CourseAvailabilityService;
+use App\Services\Student\CreditHourService;
+use App\Services\Student\StudentLevelService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Course;
-use App\Models\Registration;
-use App\Services\StudentService;
-use App\Services\Student\GPAService;
-use App\Services\Student\TermService;
-use App\Services\Student\CreditHourService;
-use App\Services\Student\CourseAvailabilityService;
 
 class RegistrationController extends Controller
 {
-    protected StudentService $studentService;
+    protected $termService;
+    protected $courseAvailabilityService;
+    protected $creditHourService;
+    protected $registrationService;
+    protected $studentLevelService;
+    protected $studentProgressService;
 
     public function __construct(
-        protected GPAService $gpaService,
-        protected TermService $termService,
-        protected CreditHourService $creditHourService,
-        protected CourseAvailabilityService $courseAvailabilityService,
-    ) {}
+        TermService $termService,
+        CourseAvailabilityService $courseAvailabilityService,
+        CreditHourService $creditHourService,
+        RegistrationService $registrationService,
+        StudentLevelService $studentLevelService,
+        StudentProgressService $studentProgressService,
+    ) {
+        $this->courseAvailabilityService = $courseAvailabilityService;
+        $this->creditHourService = $creditHourService;
+        $this->registrationService = $registrationService;
+        $this->studentLevelService = $studentLevelService;
+        $this->studentProgressService = $studentProgressService;
+    }
 
     public function availableCourses()
     {
-        $student = Auth::guard('student')->user();
-        $this->gpaService->calculateAndUpdate($student);
 
-        $term = $this->termService->determineNext($student);
-        if (!$term) return back()->with('error', 'لا يوجد ترم مناسب حالياً لهذا الطالب.');
+        $student = Auth::user();
 
-        $maxHours = $this->creditHourService->getMaxAllowed($student);
-        $minHours = 12;
+        $term = $this->courseAvailabilityService->determineNextEligibleTerm($student);
 
-        $availableCourses = $this->courseAvailabilityService->getAvailable($student, $term);
 
-        return view('student.register', compact('availableCourses', 'term', 'maxHours', 'minHours'));
+        if (!$term/* || !$this->termService->isWithinRegistrationPeriod($term)*/) {
+            return redirect()->back()->with('error', 'لا يوجد ترم متاح للتسجيل حالياً.');
+
+        }
+
+        $availableCourses = $this->courseAvailabilityService->getEligibleCoursesForTerm($student, $term);
+        [$minHours, $maxHours] = $this->creditHourService->getMinMaxHours($student);
+
+        return view('student.register', compact('term', 'availableCourses', 'minHours', 'maxHours'));
     }
 
-     public function register(Request $request)
+    public function register(Request $request)
     {
-        $student = Auth::guard('student')->user();
+        $student = Auth::user();
 
-        $request->validate([
-            'term_id' => 'required|exists:terms,id',
-            'courses' => 'required|array',
-            'courses.*' => 'exists:courses,id',
-        ]);
+    $term = $this->courseAvailabilityService->determineNextEligibleTerm($student);
 
-        $this->gpaService->calculateAndUpdate($student);
 
-        $maxHours = $this->creditHourService->getMaxAllowed($student);
-        $minHours = 12;
-        $total = Course::whereIn('id', $request->courses)->sum('credit_hours');
-
-        if ($total < $minHours || $total > $maxHours) {
-            return back()->with('error', "مسموح بالتسجيل من {$minHours} إلى {$maxHours} ساعة.");
+        if (!$term /*|| !$this->termService->isWithinRegistrationPeriod($term)*/) {
+            return redirect()->back()->with('error', 'فترة التسجيل غير متاحة حالياً.');
         }
 
-        foreach ($request->courses as $courseId) {
-            Registration::create([
-                'student_id' => $student->id,
-                'course_id' => $courseId,
-                'term_id' => $request->term_id,
-            ]);
-        }
+        $courseIds = $request->input('courses', []);
+        [$minHours, $maxHours] = $this->creditHourService->getMinMaxHours($student);
 
-        return redirect()->route('student.dashboard')->with('success', 'تم التسجيل بنجاح.');
+        $this->registrationService->validateRegistration($student, $term, $courseIds, $minHours, $maxHours);
+        $this->registrationService->registerCourses($student, $term, $courseIds);
+
+        $this->studentLevelService->updateStudentLevel($student);
+        $this->studentProgressService->updateProgress($student);
+return redirect()->route('student.dashboard')->with('success', 'تم تسجيل المواد بنجاح.');
     }
 }

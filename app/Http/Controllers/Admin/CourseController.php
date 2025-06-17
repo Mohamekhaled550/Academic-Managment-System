@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\Department;
 use App\Models\CourseGroup;
-
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\CourseImport;
 class CourseController extends Controller
 {
     public function index()
@@ -69,4 +70,16 @@ class CourseController extends Controller
         $course->delete();
         return redirect()->route('admin.courses.index')->with('success', 'تم حذف المقرر بنجاح');
     }
+
+
+    public function import(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:csv,xlsx',
+    ]);
+
+    Excel::import(new CourseImport, $request->file('file'));
+
+    return back()->with('success', 'تم استيراد البيانات بنجاح');
+}
 }

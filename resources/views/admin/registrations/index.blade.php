@@ -2,6 +2,16 @@
 @section('content')
     <h2>قائمة تسجيل المواد</h2>
     <a href="{{ route('admin.registrations.create') }}" class="btn btn-primary">تسجيل مادة جديدة</a>
+
+    <form action="{{ route('admin.registrations.import') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    <div class="input-group mb-3">
+        <input type="file" name="file" class="form-control" accept=".csv, .xlsx" required>
+        <button class="btn btn-primary">استيراد</button>
+    </div>
+</form>
+
+
     <table class="table table-bordered mt-3">
         <thead>
             <tr>

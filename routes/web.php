@@ -72,4 +72,13 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::resource('/offerings', CourseOfferingController::class);
     Route::resource('/prerequisites', PrerequisiteController::class);
 
+
+    Route::post('/students/import', [StudentController::class, 'import'])->name('students.import');
+    Route::post('/courses/import', [CourseController::class, 'import'])->name('courses.import');
+    Route::post('/departments/import', [DepartmentController::class, 'import'])->name('departments.import');
+    Route::post('/course-groups/import', [CourseGroupController::class, 'import'])->name('course-groups.import');
+    Route::post('/terms/import', [TermController::class, 'import'])->name('terms.import');
+    Route::post('/offerings/import', [CourseOfferingController::class, 'import'])->name('offerings.import');
+    Route::post('/registrations/import', [CourseRegistrationController::class, 'import'])->name('registrations.import');
+    Route::post('/prerequisites/import', [PrerequisiteController::class, 'import'])->name('prerequisites.import');
 });

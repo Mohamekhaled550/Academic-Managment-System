@@ -2,54 +2,55 @@
 
 namespace App\Services\Student;
 
-use App\Models\Course;
-use App\Models\Registration;
 use App\Models\Student;
+use App\Models\GradingScale;
 
 class GPAService
 {
-    public function calculateAndUpdate(Student $student): void
+   public function recalculateGPA(Student $student): void
     {
-        $registrations = Registration::where('student_id', $student->id)
-            ->whereNotNull('grade')
-            ->get();
 
-        $totalGradePoints = 0;
+    \Log::info('🔄 Recalculating GPA for student ID: ' . $student->id);
+
+
+        $registrations = $student->registrations()->whereNotNull('grade')->get();
+
+        if ($registrations->isEmpty()) {
+            $student->update(['gpa' => null]);
+            return;
+        }
+
+        $totalPoints = 0;
         $totalCredits = 0;
 
         foreach ($registrations as $registration) {
-            $course = Course::find($registration->course_id);
-            if (!$course) continue;
+            $numericGrade = (int) $registration->grade;
 
-            $creditHours = $course->credit_hours;
-            $grade = $registration->grade;
+            $scale = GradingScale::where('min_score', '<=', $numericGrade)
+                ->where('max_score', '>=', $numericGrade)
+                ->first();
 
-            $gradePoint = match (true) {
-                $grade >= 90 => 4.0,
-                $grade >= 85 => 3.7,
-                $grade >= 80 => 3.3,
-                $grade >= 75 => 3.0,
-                $grade >= 70 => 2.7,
-                $grade >= 65 => 2.3,
-                $grade >= 60 => 2.0,
-                $grade >= 50 => 1.0,
-                default => 0.0
-            };
+            $letter = $scale?->letter ?? 'F';
+            $points = $scale?->points ?? 0.0;
+            $creditHours = $registration->course->credit_hours;
 
-            $totalGradePoints += $gradePoint * $creditHours;
+            // تحديث بيانات التسجيل
+            $registration->update([
+                'letter_grade' => $letter,
+                'gpa_points' => $points,
+            ]);
+
+            $totalPoints += $points * $creditHours;
             $totalCredits += $creditHours;
+
         }
 
-        $student->gpa = $totalCredits > 0 ? round($totalGradePoints / $totalCredits, 2) : 0;
-        $student->total_credits = $totalCredits;
-
-        // تحديث المستوى تلقائياً
-        $newLevel = floor($totalCredits / 36) + 1;
-        if ($newLevel > $student->level && $newLevel <= 8) {
-            $student->level = $newLevel;
-        }
-
-        $student->save();
+        $gpa = $totalCredits > 0 ? round($totalPoints / $totalCredits, 2) : null;
+        $student->update(['gpa' => $gpa]);
+        $student->gpa = $gpa;
+$student->total_credit_hours = $totalCredits;
+$student->save(); // ← ضروري عشان التحديث يتم فعليًا في الداتا بيز
     }
 }
+
 

@@ -9,7 +9,7 @@ class CourseOffering extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['course_id', 'term_id', 'section'];
+    protected $fillable = ['course_id', 'term_id', 'section', 'level', 'is_elective'];
 
     public function course()
     {

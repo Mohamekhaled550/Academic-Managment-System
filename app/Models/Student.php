@@ -12,7 +12,6 @@ class Student extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = ['name', 'email', 'national_id', 'gpa', 'total_credits','level'];
-    protected $appends = ['calculated_level'];
 
     // علاقة بالمواد المسجلة
     public function registrations()
@@ -58,22 +57,7 @@ class Student extends Authenticatable
             ->pluck('course_id');
     }
 
-  public static function boot()
-    {
-        parent::boot();
 
-         static::saving(function ($student) {
-            // إعادة حساب عدد الساعات والمستوى عند كل عملية حفظ
-            $student->total_credits = Course::whereIn('id', $student->passedCourses())->sum('credit_hours');
-            $student->level = max(1, ceil($student->total_credits / 36));
-        });
-    }
-
-    // عدد الساعات التي اجتازها فعليًا (total_credits المحسوبة)
-    public function getTotalCreditsAttribute()
-    {
-        return Course::whereIn('id', $this->passedCourses())->sum('credit_hours');
-    }
 
 
 

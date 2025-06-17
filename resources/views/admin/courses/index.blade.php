@@ -3,7 +3,13 @@
 @section('content')
     <h2>قائمة المقررات</h2>
     <a href="{{ route('admin.courses.create') }}"class="btn btn-primary mb-3">إضافة مقرر جديد</a>
-
+<form action="{{ route('admin.courses.import') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    <div class="input-group mb-3">
+        <input type="file" name="file" class="form-control" accept=".csv, .xlsx" required>
+        <button class="btn btn-primary">استيراد</button>
+    </div>
+</form>
      @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif

@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CourseGroup;
 use Illuminate\Http\Request;
-
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\CourseGroupImport;
 class CourseGroupController extends Controller
 {
     public function index()
@@ -53,4 +54,16 @@ class CourseGroupController extends Controller
         $courseGroup->delete();
         return redirect()->route('admin.course-groups.index')->with('success', 'تم حذف المجموعة بنجاح');
     }
+
+
+    public function import(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:csv,xlsx',
+    ]);
+
+    Excel::import(new CourseGroupImport, $request->file('file'));
+
+    return back()->with('success', 'تم استيراد البيانات بنجاح');
+}
 }

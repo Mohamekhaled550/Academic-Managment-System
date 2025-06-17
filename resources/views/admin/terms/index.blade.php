@@ -3,7 +3,13 @@
 @section('content')
     <h3>كل الترمات</h3>
     <a href="{{ route('admin.terms.create') }}" class="btn btn-primary mb-3">إضافة ترم جديد</a>
-
+<form action="{{ route('admin.terms.import') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    <div class="input-group mb-3">
+        <input type="file" name="file" class="form-control" accept=".csv, .xlsx" required>
+        <button class="btn btn-primary">استيراد</button>
+    </div>
+</form>
     <table class="table table-bordered">
         <thead>
             <tr>
