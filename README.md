@@ -37,7 +37,7 @@ A comprehensive Laravel-based web application for managing student registration,
 
 | Student Dashboard | Course Registration |
 |-------------------|---------------------|
-| ![Dashboard](screenshots/dashboard.png) | ![Register](screenshots/registration.png) |
+| ![Dashboard](screenshots/dashboard.jpg) | ![Register](screenshots/registration.jpg) || ![studentdashboard](screenshots/studentdashboard.jpg) |
 
 Add screenshots under a `/screenshots` folder in your repository.
 
